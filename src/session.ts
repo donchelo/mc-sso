@@ -37,7 +37,12 @@ export function verifySession(
   } catch { return null }
   try {
     const data = JSON.parse(Buffer.from(payload, "base64url").toString()) as SessionPayload
-    if (typeof data.exp !== "number" || data.exp < Date.now()) return null
+    if (
+      typeof data.tenantId !== "string" ||
+      typeof data.iat      !== "number" ||
+      typeof data.exp      !== "number"
+    ) return null
+    if (data.exp < Date.now()) return null
     return data
   } catch { return null }
 }
