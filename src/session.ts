@@ -1,4 +1,5 @@
-import { createHmac, timingSafeEqual } from "node:crypto"
+import { timingSafeEqual } from "node:crypto"
+import { sign } from "./crypto"
 
 const DEFAULT_TTL_MS = 8 * 60 * 60 * 1000
 
@@ -6,10 +7,6 @@ export interface SessionPayload {
   tenantId: string
   iat:      number
   exp:      number
-}
-
-function sign(payload: string, secret: string): string {
-  return createHmac("sha256", secret).update(payload).digest("base64url")
 }
 
 export function createSession(

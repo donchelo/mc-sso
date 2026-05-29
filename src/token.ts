@@ -1,14 +1,11 @@
-import { createHmac, timingSafeEqual } from "node:crypto"
+import { timingSafeEqual } from "node:crypto"
+import { sign } from "./crypto"
 
 export interface McTokenPayload {
   tenantId:    string
   serviceId:   string
   displayName: string
   exp:         number
-}
-
-function sign(payload: string, secret: string): string {
-  return createHmac("sha256", secret).update(payload).digest("base64url")
 }
 
 export function createMcToken(
@@ -45,6 +42,12 @@ export function verifyMcToken(
   } catch { return null }
   try {
     const data = JSON.parse(Buffer.from(payload, "base64url").toString()) as McTokenPayload
+    if (
+      typeof data.tenantId    !== "string" ||
+      typeof data.serviceId   !== "string" ||
+      typeof data.displayName !== "string" ||
+      typeof data.exp         !== "number"
+    ) return null
     if (data.exp < Date.now()) return null
     if (data.serviceId !== serviceId) return null
     return data
