@@ -4,11 +4,12 @@ exports.createMcToken = createMcToken;
 exports.verifyMcToken = verifyMcToken;
 const node_crypto_1 = require("node:crypto");
 const crypto_1 = require("./crypto");
-function createMcToken(tenantId, serviceId, displayName, secret) {
+function createMcToken(tenantId, serviceId, displayName, secret, extra = {}) {
     const data = {
         tenantId,
         serviceId,
         displayName,
+        ...extra,
         exp: Date.now() + 5 * 60 * 1000,
     };
     const payload = Buffer.from(JSON.stringify(data)).toString("base64url");

@@ -39,6 +39,26 @@ describe("createMcToken / verifyMcToken", () => {
     expect(verifyMcToken(token, SERVICE, SECRET)).not.toBeNull()
   })
 
+  it("embebe y devuelve identidad+permisos (userId/roles/allowedModules)", () => {
+    const token = createMcToken(TENANT, SERVICE, DISPLAY, SECRET, {
+      userId: "u-123",
+      roles: ["admin"],
+      allowedModules: ["kpis", "pulse"],
+    })
+    const result = verifyMcToken(token, SERVICE, SECRET)
+    expect(result).not.toBeNull()
+    expect(result!.userId).toBe("u-123")
+    expect(result!.roles).toEqual(["admin"])
+    expect(result!.allowedModules).toEqual(["kpis", "pulse"])
+  })
+
+  it("retrocompatible: sin extra, los campos quedan undefined", () => {
+    const token = createMcToken(TENANT, SERVICE, DISPLAY, SECRET)
+    const result = verifyMcToken(token, SERVICE, SECRET)
+    expect(result!.userId).toBeUndefined()
+    expect(result!.allowedModules).toBeUndefined()
+  })
+
   it("rejects wrong serviceId", () => {
     const token = createMcToken(TENANT, SERVICE, DISPLAY, SECRET)
     expect(verifyMcToken(token, "other-service", SECRET)).toBeNull()

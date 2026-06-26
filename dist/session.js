@@ -5,9 +5,9 @@ exports.verifySession = verifySession;
 const node_crypto_1 = require("node:crypto");
 const crypto_1 = require("./crypto");
 const DEFAULT_TTL_MS = 8 * 60 * 60 * 1000;
-function createSession(tenantId, secret, ttlMs = DEFAULT_TTL_MS) {
+function createSession(tenantId, secret, ttlMs = DEFAULT_TTL_MS, extra = {}) {
     const now = Date.now();
-    const data = { tenantId, iat: now, exp: now + ttlMs };
+    const data = { tenantId, ...extra, iat: now, exp: now + ttlMs };
     const payload = Buffer.from(JSON.stringify(data)).toString("base64url");
     return `${payload}.${(0, crypto_1.sign)(payload, secret)}`;
 }

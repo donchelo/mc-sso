@@ -1,7 +1,18 @@
 import { timingSafeEqual } from "node:crypto"
 import { sign } from "./crypto"
 
-export interface McTokenPayload {
+/**
+ * Datos de identidad+permisos que Mission Control embebe en el token durante el
+ * handoff, para que la app receptora conozca al usuario sin tocar la BD.
+ * Todos opcionales ⇒ retrocompatible con los verificadores existentes.
+ */
+export interface McTokenExtra {
+  userId?:         string
+  roles?:          string[]
+  allowedModules?: string[] | null
+}
+
+export interface McTokenPayload extends McTokenExtra {
   tenantId:    string
   serviceId:   string
   displayName: string
@@ -13,11 +24,13 @@ export function createMcToken(
   serviceId:   string,
   displayName: string,
   secret:      string,
+  extra:       McTokenExtra = {},
 ): string {
   const data: McTokenPayload = {
     tenantId,
     serviceId,
     displayName,
+    ...extra,
     exp: Date.now() + 5 * 60 * 1000,
   }
   const payload = Buffer.from(JSON.stringify(data)).toString("base64url")

@@ -3,7 +3,15 @@ import { sign } from "./crypto"
 
 const DEFAULT_TTL_MS = 8 * 60 * 60 * 1000
 
-export interface SessionPayload {
+/** Identidad+permisos opcionales que la sesión conserva tras el handoff SSO. */
+export interface SessionExtra {
+  userId?:         string
+  roles?:          string[]
+  allowedModules?: string[] | null
+  displayName?:    string
+}
+
+export interface SessionPayload extends SessionExtra {
   tenantId: string
   iat:      number
   exp:      number
@@ -13,9 +21,10 @@ export function createSession(
   tenantId: string,
   secret:   string,
   ttlMs     = DEFAULT_TTL_MS,
+  extra:    SessionExtra = {},
 ): string {
   const now  = Date.now()
-  const data: SessionPayload = { tenantId, iat: now, exp: now + ttlMs }
+  const data: SessionPayload = { tenantId, ...extra, iat: now, exp: now + ttlMs }
   const payload = Buffer.from(JSON.stringify(data)).toString("base64url")
   return `${payload}.${sign(payload, secret)}`
 }
